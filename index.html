@@ -115,95 +115,117 @@ My mom thinks I'm great and that you're cute, and she's always right. ACL injury
 
   </div>
 
-  function showReaction(type){
+  <script>
+    const card = document.getElementById('card');
+    const deck = document.getElementById('deck');
+    const likeLabel = document.getElementById('likeLabel');
+    const nopeLabel = document.getElementById('nopeLabel');
+    const reaction = document.getElementById('reaction');
+
+    const photos = document.querySelectorAll('.photo img');
+    let currentPhoto = 0;
+    document.getElementById('nextBtn').onclick = () => {
+      photos[currentPhoto].classList.remove('active');
+      currentPhoto = (currentPhoto + 1) % photos.length;
+      photos[currentPhoto].classList.add('active');
+    };
+    document.getElementById('prevBtn').onclick = () => {
+      photos[currentPhoto].classList.remove('active');
+      currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
+      photos[currentPhoto].classList.add('active');
+    };
+
+    let startX=0, startY=0, currentX=0, currentY=0, isDragging=false;
+
+    function showReaction(type){
       if(type === 'right'){
-        reaction.innerHTML = "Mamma mia! It's a Champions League match :) <span class='heart-icon'>♥</span>";
+        reaction.innerHTML = 'Mamma mia! :) <span class="heart-icon">♥</span>';
         reaction.className = 'reaction green';
       } else if(type === 'left'){
-        reaction.innerHTML = "Mamma mia! No Champions League match <span class='broken-heart-icon'>💔</span>";
+        reaction.innerHTML = 'Mamma mia! :( <span class="broken-heart-icon">💔</span>';
         reaction.className = 'reaction red';
       } else if(type === 'super'){
-        reaction.innerHTML = "GOOOOOL!!!! ⚽ Champions League win";
+        reaction.innerHTML = 'GOOOOOL!!!! ⚽';
         reaction.className = 'reaction blue';
       }
       reaction.style.opacity = 1;
       setTimeout(()=>{reaction.style.opacity = 0;},1800);
     }
 
-    function setTransform(x,y,rot){
-      card.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg)`;
-      const opacity = Math.min(Math.abs(x)/120,1);
-      if(x>0){likeLabel.style.opacity=opacity;nopeLabel.style.opacity=0;}
-      else{nopeLabel.style.opacity=opacity;likeLabel.style.opacity=0;}
+    function setTransform(x, y, rot){
+      card.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
+      const opacity = Math.min(Math.abs(x)/120, 1);
+      if(x>0){ likeLabel.style.opacity = opacity; nopeLabel.style.opacity = 0; }
+      else { nopeLabel.style.opacity = opacity; likeLabel.style.opacity = 0; }
     }
 
     function onPointerDown(e){
-      isDragging=true;
-      startX=e.clientX||(e.touches&&e.touches[0].clientX);
-      startY=e.clientY||(e.touches&&e.touches[0].clientY);
-      card.style.transition='none';
+      isDragging = true;
+      startX = e.clientX || e.touches && e.touches[0].clientX;
+      startY = e.clientY || e.touches && e.touches[0].clientY;
+      card.style.transition = 'none';
     }
     function onPointerMove(e){
-      if(!isDragging)return;
-      currentX=(e.clientX||(e.touches&&e.touches[0].clientX))-startX;
-      currentY=(e.clientY||(e.touches&&e.touches[0].clientY))-startY;
-      const rot=currentX/12;
-      setTransform(currentX,currentY,rot);
+      if(!isDragging) return;
+      currentX = (e.clientX || e.touches && e.touches[0].clientX) - startX;
+      currentY = (e.clientY || e.touches && e.touches[0].clientY) - startY;
+      const rot = currentX / 12;
+      setTransform(currentX, currentY, rot);
     }
     function onPointerUp(){
-      if(!isDragging)return;
+      if(!isDragging) return;
       isDragging=false;
-      card.style.transition='transform 300ms ease,opacity 300ms ease';
-      const threshold=140;
-      if(Math.abs(currentX)>threshold){
-        const rightSwipe=currentX>0;
-        const endX=rightSwipe?deck.clientWidth*1.2:-deck.clientWidth*1.2;
-        card.style.transform=`translate(${endX}px,${currentY}px) rotate(${rightSwipe?30:-30}deg)`;
-        card.style.opacity=0;
-        showReaction(rightSwipe?'right':'left');
-        setTimeout(()=>resetCard(),600);
-      }else{
+      card.style.transition = 'transform 300ms ease, opacity 300ms ease';
+      const threshold = 140;
+      if(Math.abs(currentX) > threshold){
+        const rightSwipe = currentX > 0;
+        const endX = rightSwipe ? deck.clientWidth*1.2 : -deck.clientWidth*1.2;
+        card.style.transform = `translate(${endX}px, ${currentY}px) rotate(${rightSwipe?30:-30}deg)`;
+        card.style.opacity = 0;
+        showReaction(rightSwipe ? 'right' : 'left');
+        setTimeout(()=>resetCard(), 600);
+      } else {
         setTransform(0,0,0);
-        likeLabel.style.opacity=0;nopeLabel.style.opacity=0;
+        likeLabel.style.opacity=0; nopeLabel.style.opacity=0;
       }
-      currentX=0;currentY=0;
+      currentX = 0; currentY = 0;
     }
 
     function resetCard(){
-      card.style.transition='none';
-      card.style.transform='';
-      card.style.opacity=1;
-      likeLabel.style.opacity=0;nopeLabel.style.opacity=0;
+      card.style.transition = 'none';
+      card.style.transform = '';
+      card.style.opacity = 1;
+      likeLabel.style.opacity=0; nopeLabel.style.opacity=0;
     }
 
-    card.addEventListener('mousedown',onPointerDown);
-    window.addEventListener('mousemove',onPointerMove);
-    window.addEventListener('mouseup',onPointerUp);
-    card.addEventListener('touchstart',onPointerDown,{passive:true});
-    window.addEventListener('touchmove',onPointerMove,{passive:true});
-    window.addEventListener('touchend',onPointerUp);
+    card.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+    card.addEventListener('touchstart', onPointerDown,{passive:true});
+    window.addEventListener('touchmove', onPointerMove,{passive:true});
+    window.addEventListener('touchend', onPointerUp);
 
-    document.getElementById('noBtn').addEventListener('click',()=>{
-      card.style.transition='transform 400ms ease,opacity 300ms ease';
-      card.style.transform='translate(-1200px,0) rotate(-28deg)';
-      card.style.opacity=0;
+    document.getElementById('noBtn').addEventListener('click', ()=>{
+      card.style.transition = 'transform 400ms ease, opacity 300ms ease';
+      card.style.transform = 'translate(-1200px, 0) rotate(-28deg)';
+      card.style.opacity = 0;
       showReaction('left');
-      setTimeout(resetCard,600);
+      setTimeout(resetCard, 600);
     });
-    document.getElementById('yesBtn').addEventListener('click',()=>{
-      card.style.transition='transform 400ms ease,opacity 300ms ease';
-      card.style.transform='translate(1200px,0) rotate(28deg)';
-      card.style.opacity=0;
+    document.getElementById('yesBtn').addEventListener('click', ()=>{
+      card.style.transition = 'transform 400ms ease, opacity 300ms ease';
+      card.style.transform = 'translate(1200px, 0) rotate(28deg)';
+      card.style.opacity = 0;
       showReaction('right');
-      setTimeout(resetCard,600);
+      setTimeout(resetCard, 600);
     });
-    document.getElementById('superBtn').addEventListener('click',()=>{
-      card.style.transition='transform 220ms ease';
-      card.style.transform='scale(1.04)';
+    document.getElementById('superBtn').addEventListener('click', ()=>{
+      card.style.transition = 'transform 220ms ease';
+      card.style.transform = 'scale(1.04)';
       showReaction('super');
       setTimeout(()=>{card.style.transform='';},220);
     });
-    document.getElementById('undoBtn').addEventListener('click',()=>{
+    document.getElementById('undoBtn').addEventListener('click', ()=>{
       card.style.transition='transform 200ms ease';
       card.style.transform='translateX(-14px)';
       setTimeout(()=>card.style.transform='translateX(14px)',120);
@@ -211,10 +233,10 @@ My mom thinks I'm great and that you're cute, and she's always right. ACL injury
     });
 
     window.addEventListener('keydown',(e)=>{
-      if(e.key==='ArrowLeft')document.getElementById('noBtn').click();
-      if(e.key==='ArrowRight')document.getElementById('yesBtn').click();
-      if(e.key==='ArrowUp')document.getElementById('superBtn').click();
-      if(e.key==='u')document.getElementById('undoBtn').click();
+      if(e.key === 'ArrowLeft') document.getElementById('noBtn').click();
+      if(e.key === 'ArrowRight') document.getElementById('yesBtn').click();
+      if(e.key === 'ArrowUp') document.getElementById('superBtn').click();
+      if(e.key === 'u') document.getElementById('undoBtn').click();
     });
   </script>
 </body>
